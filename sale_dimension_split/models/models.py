@@ -354,12 +354,6 @@ class SaleOrderLine(models.Model):
                 line.raw_product_length * line.raw_product_height / 10000
             )
 
-            if self.product_area != 0 and line.raw_product_usable_area != 0:
-                line.product_qty = (
-                    math.ceil((self.product_area / line.raw_product_usable_area))
-                    * line.raw_product_area
-                )
-
 
 class MrpBomLine(models.Model):
     _inherit = "mrp.bom.line"

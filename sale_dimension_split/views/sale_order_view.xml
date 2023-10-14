@@ -19,7 +19,7 @@
       </xpath>
 
 
-      <xpath expr="//page/field[@name='order_line']/form/field[@name='name']" position="before">
+      <xpath expr="//page/field[@name='order_line']/form/field[@name='name']" position="after">
 
         <!-- HOJA DE CORTE -->
         <group>
@@ -55,7 +55,7 @@
               <field name="product_pieces_width" />
             </div>
           </group>
-          <group col="8" colspan="6">
+          <group col="6" colspan="2">
             <label for="product_pieces_area" string="Área de la pieza" />
             <div class="o_row">
               <field name="product_pieces_area" readonly="1" force_save="1"/>
@@ -68,15 +68,15 @@
             <div class="o_row">
               <field name="product_number_of_pieces" readonly="1" force_save="1"/>
             </div>
-            <label for="total_available" string="T. Componentes"/>
-            <div class="o_row">
-              <field name="total_available" readonly="1" force_save="1"/>
-            </div>
+<!--            <label for="total_available" string="T. Componentes"/>-->
+<!--            <div class="o_row">-->
+<!--              <field name="total_available" readonly="1" force_save="1"/>-->
+<!--            </div>-->
           </group>
         </group>
 
       </xpath>
-      <xpath expr="//page/field[@name='order_line']/form/field[@name='name']" position="before">
+      <xpath expr="//page/field[@name='order_line']/form/field[@name='name']" position="after">
         <field name="sale_line_bom_ids" widget="one2many">
           <tree string="Componentes" editable="bottom">
             <field name="company_id" invisible="1"/>
@@ -87,8 +87,8 @@
             <field name="raw_product_height" optional="show"/>
             <field name="raw_product_uom_id" optional="hide"/>
             <field name="raw_product_area" optional="show"/>
-            <field name="raw_product_usable_area" optional="show"/>
-            <field name="raw_area_orientation" optional="show"/>
+            <field name="raw_product_usable_area" optional="hide"/>
+            <field name="raw_area_orientation" optional="hide"/>
             <field name="product_qty" sum="1"/>
             <field name="product_qty_available" sum="1" force_save="1"/>
             <field name="product_qty_enter" sum="1"/>
@@ -124,8 +124,8 @@
         <field name="raw_product_height" optional="show"/>
         <field name="raw_product_uom_id" optional="show"/>
         <field name="raw_product_area" optional="show"/>
-        <field name="raw_product_usable_area" optional="show"/>
-        <field name="raw_area_orientation" optional="show"/>
+        <field name="raw_product_usable_area" optional="hide"/>
+        <field name="raw_area_orientation" optional="hide"/>
       </xpath>
 
       <xpath expr="//field[@name='bom_line_ids']/tree/field[@name='product_uom_id']" position="attributes">

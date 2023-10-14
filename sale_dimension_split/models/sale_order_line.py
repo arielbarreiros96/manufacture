@@ -119,17 +119,137 @@ class SaleOrderLine(models.Model):
 
     def write(self, values):
         res = super(SaleOrderLine, self).write(values)
-        if self.total_available == 0:
-            pass
-        else:
-            if self.total_available <= self.product_area:
-                raise UserError(
-                    _(
-                        "Los componentes disponibles no cubren el área total necesario para cubrir las necesidades del cliente"
-                    )
-                )
-
+        # Bypass Validation
+        # if self.total_available == 0:
+        #     pass
+        # else:
+        #     if self.total_available <= self.product_area:
+        #         raise UserError(
+        #             _(
+        #                 "Los componentes disponibles no cubren el área total necesario para cubrir las necesidades del cliente"
+        #             )
+        #         )
         return res
+
+    # def _computed_product_area_deprecated(self):
+    #     # self.ensure_one()
+    #     for line in self:
+    #         # HOJAS DE CORTE
+    #         if line.blade_affects_lenght:
+    #             line.product_pieces_height_value = (
+    #                 line.product_pieces_height + line.blade_width
+    #             )
+    #         else:
+    #             line.product_pieces_height_value = (
+    #                 line.product_pieces_height - line.blade_width
+    #             )
+    #
+    #         if line.blade_affects_height:
+    #             line.product_pieces_length_value = (
+    #                 line.product_pieces_length + line.blade_width
+    #             )
+    #         else:
+    #             line.product_pieces_length_value = (
+    #                 line.product_pieces_length - line.blade_width
+    #             )
+    #
+    #         line.product_pieces_area = (
+    #             line.product_pieces_height * line.product_pieces_length / 10000
+    #         )
+    #         if (
+    #             line.product_uom
+    #             and line.product_uom.id
+    #             == self.env.ref("sale_dimension_split.product_uom_area").id
+    #         ):
+    #             line.product_area = line.product_uom_qty
+    #         else:
+    #             line.product_area = (
+    #                 line.product_uom_qty * line.product_pieces_height / 100
+    #             )
+    #         if line.product_uom_qty != 0 and line.product_pieces_length != 0:
+    #             if (
+    #                 line.product_uom
+    #                 and line.product_uom.id
+    #                 == self.env.ref("sale_dimension_split.product_uom_area").id
+    #             ):
+    #                 # metros cuadrados
+    #                 if line.product_pieces_length and line.product_pieces_height:
+    #                     line.product_number_of_pieces = math.ceil(
+    #                         line.product_uom_qty
+    #                         / (
+    #                             (
+    #                                 line.product_pieces_length
+    #                                 * line.product_pieces_height
+    #                             )
+    #                             / 10000
+    #                         )
+    #                     )
+    #             else:
+    #                 line.product_number_of_pieces = math.ceil(
+    #                     line.product_uom_qty / (line.product_pieces_length / 100)
+    #                 )
+    #
+    #         if (
+    #             line.product_uom
+    #             and line.product_uom.id == self.env.ref("uom.product_uom_unit").id
+    #         ):
+    #             line.product_number_of_pieces = line.product_uom_qty
+    #             line.product_area = 0.0
+    #
+    #         if (
+    #             line.product_uom
+    #             and line.product_uom.id == self.env.ref("uom.product_uom_unit").id
+    #             and line.sale_line_bom_ids.product_id.uom_id.id
+    #             == self.env.ref("sale_dimension_split.product_uom_area").id
+    #         ):
+    #             a = (
+    #                 line.sale_line_bom_ids.raw_product_length
+    #                 // line.product_pieces_length
+    #             )
+    #             b = (
+    #                 line.sale_line_bom_ids.raw_product_height
+    #                 // line.product_pieces_height
+    #             )
+    #             c = a * b
+    #             if c != 0:
+    #                 d = math.ceil(line.product_uom_qty / c)
+    #             else:
+    #                 d = 0
+    #
+    #             line.sale_line_bom_ids.product_qty = d * line.product_pieces_area
+    #
+    #         if (
+    #             line.product_uom
+    #             and line.product_uom.id == self.env.ref("uom.product_uom_unit").id
+    #             and line.sale_line_bom_ids.product_id.uom_id.id
+    #             == self.env.ref("uom.product_uom_meter").id
+    #         ):
+    #             a = (
+    #                 line.sale_line_bom_ids.raw_product_length
+    #                 // line.product_pieces_length
+    #             )
+    #
+    #             line.sale_line_bom_ids.product_qty = (
+    #                 a * line.product_uom_qty * line.product_pieces_length / 100
+    #             )
+    #
+    #         if (
+    #             line.product_uom
+    #             and line.product_uom.id == self.env.ref("uom.product_uom_meter").id
+    #             and line.sale_line_bom_ids.product_id.uom_id.id
+    #             == self.env.ref("uom.product_uom_meter").id
+    #         ):
+    #             a = (
+    #                 line.sale_line_bom_ids.raw_product_length
+    #                 // line.product_pieces_length
+    #             )
+    #             b = (
+    #                 line.sale_line_bom_ids.raw_product_height
+    #                 // line.product_pieces_height
+    #             )
+    #             c = a * b
+    #             if c!=0:
+    #                 line.sale_line_bom_ids.product_qty = line.sale_line_bom_ids.raw_product_length / c
 
     @api.onchange(
         "product_pieces_length",
@@ -141,126 +261,140 @@ class SaleOrderLine(models.Model):
         "sale_line_bom_ids.product_id",
     )
     def _computed_product_area(self):
-        # self.ensure_one()
+
+        # Cálculo de area que se necesita consumir en cada linea
         for line in self:
-            # HOJAS DE CORTE
-            if line.blade_affects_lenght:
-                line.product_pieces_height_value = (
-                    line.product_pieces_height + line.blade_width
-                )
-            else:
-                line.product_pieces_height_value = (
-                    line.product_pieces_height - line.blade_width
-                )
+            # Cálculo el area de las piezas a producir
+            line.product_pieces_area = line.product_pieces_height * line.product_pieces_length / 10000
 
-            if line.blade_affects_height:
-                line.product_pieces_length_value = (
-                    line.product_pieces_length + line.blade_width
-                )
-            else:
-                line.product_pieces_length_value = (
-                    line.product_pieces_length - line.blade_width
-                )
-
-            line.product_pieces_area = (
-                line.product_pieces_height * line.product_pieces_length / 10000
-            )
+            # Cálculo del area total de las piezas, si aplica, segun los casos de uso
             if (
                 line.product_uom
                 and line.product_uom.id
                 == self.env.ref("sale_dimension_split.product_uom_area").id
             ):
                 line.product_area = line.product_uom_qty
-            else:
-                line.product_area = (
-                    line.product_uom_qty * line.product_pieces_height / 100
-                )
-            if line.product_uom_qty != 0 and line.product_pieces_length != 0:
-                if (
-                    line.product_uom
-                    and line.product_uom.id
-                    == self.env.ref("sale_dimension_split.product_uom_area").id
-                ):
-                    # metros cuadrados
-                    if line.product_pieces_length and line.product_pieces_height:
-                        line.product_number_of_pieces = math.ceil(
-                            line.product_uom_qty
-                            / (
+                if line.product_pieces_length != 0 and line.product_pieces_height != 0:
+                    line.product_number_of_pieces = math.ceil(
+                        line.product_uom_qty
+                        / (
                                 (
-                                    line.product_pieces_length
-                                    * line.product_pieces_height
+                                        line.product_pieces_length
+                                        * line.product_pieces_height
                                 )
                                 / 10000
-                            )
                         )
-                else:
+                    )
+
+            elif (
+                line.product_uom
+                and line.product_uom.id == self.env.ref("uom.product_uom_unit").id
+            ):
+                line.product_area = 0.0
+                line.product_number_of_pieces = line.product_uom_qty
+
+            else:
+                # Este es el caso restante, m lineales
+                if (
+                    line.product_pieces_height != 0 and line.product_pieces_length != 0
+                ):
+                    line.product_area = (
+                        line.product_uom_qty * line.product_pieces_height / 100
+                    )
                     line.product_number_of_pieces = math.ceil(
                         line.product_uom_qty / (line.product_pieces_length / 100)
                     )
 
-            if (
-                line.product_uom
-                and line.product_uom.id == self.env.ref("uom.product_uom_unit").id
-            ):
-                line.product_number_of_pieces = line.product_uom_qty
-                line.product_area = 0.0
 
+            # Cálculo de cuántas piezas se pueden sacar de cada componente
+            # Init
+            pieces_from_hei = 0
+            pieces_from_len = 0
+            pieces_needed = 0
+
+            if line.product_pieces_length != 0:
+                pieces_from_len = line.sale_line_bom_ids.raw_product_length // line.product_pieces_length
+            if line.product_pieces_height != 0:
+                pieces_from_hei = line.sale_line_bom_ids.raw_product_height // line.product_pieces_height
+                
+            pieces_from_raw_material = pieces_from_len * pieces_from_hei
+            if pieces_from_raw_material != 0:
+                pieces_needed = math.ceil(line.product_number_of_pieces / pieces_from_raw_material)
+
+            # Casos de uso:
+            # 1. Si la unidad de medida de la línea es m2 y la del componente es m2
+            # 2. Si la unidad de medida de la línea es m2 y la del componente es m
+            # 3. Si la unidad de medida de la línea es m y la del componente es m2
+            # 4. Si la unidad de medida de la línea es m y la del componente es m
+            # 5. Si la unidad de medida de la línea es ud y la del componente es m2
+            # 6. Si la unidad de medida de la línea es ud y la del componente es m
+            # 7. Si la unidad de medida de la línea es ud y la del componente es ud
+
+            # 1. Si la unidad de medida de la línea es m2 y la del componente es m2
             if (
                 line.product_uom
-                and line.product_uom.id == self.env.ref("uom.product_uom_unit").id
+                and line.product_uom.id == self.env.ref("sale_dimension_split.product_uom_area").id
                 and line.sale_line_bom_ids.product_id.uom_id.id
                 == self.env.ref("sale_dimension_split.product_uom_area").id
             ):
-                a = (
-                    line.sale_line_bom_ids.raw_product_length
-                    // line.product_pieces_length
-                )
-                b = (
-                    line.sale_line_bom_ids.raw_product_height
-                    // line.product_pieces_height
-                )
-                c = a * b
-                if c != 0:
-                    d = math.ceil(line.product_uom_qty / c)
-                else:
-                    d = 0
+                line.sale_line_bom_ids.product_qty = pieces_needed * line.sale_line_bom_ids.raw_product_area
 
-                line.sale_line_bom_ids.product_qty = d * line.product_pieces_area
-
+            # 2. Si la unidad de medida de la línea es m2 y la del componente es m
             if (
                 line.product_uom
-                and line.product_uom.id == self.env.ref("uom.product_uom_unit").id
+                and line.product_uom.id == self.env.ref("sale_dimension_split.product_uom_area").id
                 and line.sale_line_bom_ids.product_id.uom_id.id
                 == self.env.ref("uom.product_uom_meter").id
             ):
-                a = (
-                    line.sale_line_bom_ids.raw_product_length
-                    // line.product_pieces_length
-                )
+                line.sale_line_bom_ids.product_qty = (pieces_needed
+                                                      * line.sale_line_bom_ids.raw_product_length / 100)
 
-                line.sale_line_bom_ids.product_qty = (
-                    a * line.product_uom_qty * line.product_pieces_length / 100
-                )
-                
+            # 3. Si la unidad de medida de la línea es m y la del componente es m2
+            if (
+                line.product_uom
+                and line.product_uom.id == self.env.ref("uom.product_uom_meter").id
+                and line.sale_line_bom_ids.product_id.uom_id.id
+                == self.env.ref("sale_dimension_split.product_uom_area").id
+            ):
+                line.sale_line_bom_ids.product_qty = pieces_needed * line.sale_line_bom_ids.raw_product_area
+
+            # 4. Si la unidad de medida de la línea es m y la del componente es m
             if (
                 line.product_uom
                 and line.product_uom.id == self.env.ref("uom.product_uom_meter").id
                 and line.sale_line_bom_ids.product_id.uom_id.id
                 == self.env.ref("uom.product_uom_meter").id
             ):
-                a = (
-                    line.sale_line_bom_ids.raw_product_length
-                    // line.product_pieces_length
-                )
-                b = (
-                    line.sale_line_bom_ids.raw_product_height
-                    // line.product_area
-                )
-                c = a * b
+                line.sale_line_bom_ids.product_qty = (pieces_needed
+                                                      * line.sale_line_bom_ids.raw_product_length / 100)
 
-                line.sale_line_bom_ids.product_qty = c * line.sale_line_bom_ids.raw_product_length
-                
-                    
+            # 5. Si la unidad de medida de la línea es ud y la del componente es m2
+            if (
+                line.product_uom
+                and line.product_uom.id == self.env.ref("uom.product_uom_unit").id
+                and line.sale_line_bom_ids.product_id.uom_id.id
+                == self.env.ref("sale_dimension_split.product_uom_area").id
+            ):
+                line.sale_line_bom_ids.product_qty = pieces_needed * line.sale_line_bom_ids.raw_product_area
+
+            # 6. Si la unidad de medida de la línea es ud y la del componente es m
+            if (
+                line.product_uom
+                and line.product_uom.id == self.env.ref("uom.product_uom_unit").id
+                and line.sale_line_bom_ids.product_id.uom_id.id
+                == self.env.ref("uom.product_uom_meter").id
+            ):
+                line.sale_line_bom_ids.product_qty = (pieces_needed
+                                                      * line.sale_line_bom_ids.raw_product_length / 100)
+
+            # 7. Si la unidad de medida de la línea es ud y la del componente es ud
+            if (
+                line.product_uom
+                and line.product_uom.id == self.env.ref("uom.product_uom_unit").id
+                and line.sale_line_bom_ids.product_id.uom_id.id
+                == self.env.ref("uom.product_uom_unit").id
+            ):
+                line.sale_line_bom_ids.product_qty = pieces_needed
 
     @api.onchange(
         "sale_line_bom_ids.product_id",
@@ -337,11 +471,6 @@ class SaleOrderLine(models.Model):
                         temp = area_v
                     line.product_qty = (
                         math.ceil((self.product_number_of_pieces / temp))
-                        * line.raw_product_area
-                    )
-                else:
-                    line.product_qty = (
-                        math.ceil((self.product_area / line.raw_product_usable_area))
                         * line.raw_product_area
                     )
 
