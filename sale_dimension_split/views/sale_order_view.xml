@@ -18,29 +18,33 @@
         <field name="bom_id" force_save="1"/>
       </xpath>
 
+      <xpath expr="//page/field[@name='order_line']/form/field[@name='name']" position="after">
+        <field name="sale_line_bom_ids" widget="one2many">
+          <tree string="Componentes" editable="bottom">
+            <field name="company_id" invisible="1"/>
+            <field name="sequence" widget="handle"/>
+            <field name="product_id" context="{'default_type': 'product'}"/>
+            <field name="product_tmpl_id" invisible="1"/>
+            <field name="raw_product_length" optional="show"/>
+            <field name="raw_product_height" optional="show"/>
+            <field name="raw_product_uom_id" optional="hide"/>
+            <field name="raw_product_area" optional="show"/>
+            <field name="raw_product_usable_area" optional="hide"/>
+            <field name="raw_area_orientation" optional="hide"/>
+            <field name="product_qty" sum="1"/>
+            <field name="product_qty_available" sum="1" force_save="1"/>
+            <field name="product_qty_enter" sum="1"/>
+            <button name="action_see_attachments" type="object" icon="fa-files-o" aria-label="Product Attachments" title="Product Attachments" class="float-right oe_read_only"/>
+            <field name="attachments_count" class="text-left oe_read_only" string=" "/>
+          </tree>
+        </field>
+        <label for="notes" string="Notas específicas"/>
+        <field name="notes"/>
+      </xpath>
 
       <xpath expr="//page/field[@name='order_line']/form/field[@name='name']" position="after">
-
-        <!-- HOJA DE CORTE -->
+        
         <group>
-          <!-- <group name="hojas_corte" string="Hoja de corte" col="6" colspan="4">
-            <label for="blade_width" string="Ancho hoja"/>
-            <div class="o_row">
-              <field name="blade_width"/>
-            </div>
-
-            <label for="blade_affects_lenght" string="Afecta al largo?"/>
-            <div class="o_row">
-              <field name="blade_affects_lenght"/>
-            </div>
-            <label for="blade_affects_height" string="Afecta al ancho?"/>
-            <div class="o_row">
-              <field name="blade_affects_height"/>
-            </div>
-          </group> -->
-
-
-          <!-- FIN HOJA DE CORTE -->
           <group name="medidas" string="Medidas" col="6" colspan="2">
             <label for="product_pieces_length" string="Largo" />
             <div class="o_row">
@@ -68,37 +72,11 @@
             <div class="o_row">
               <field name="product_number_of_pieces" readonly="1" force_save="1"/>
             </div>
-<!--            <label for="total_available" string="T. Componentes"/>-->
-<!--            <div class="o_row">-->
-<!--              <field name="total_available" readonly="1" force_save="1"/>-->
-<!--            </div>-->
           </group>
         </group>
 
       </xpath>
-      <xpath expr="//page/field[@name='order_line']/form/field[@name='name']" position="after">
-        <field name="sale_line_bom_ids" widget="one2many">
-          <tree string="Componentes" editable="bottom">
-            <field name="company_id" invisible="1"/>
-            <field name="sequence" widget="handle"/>
-            <field name="product_id" context="{'default_type': 'product'}"/>
-            <field name="product_tmpl_id" invisible="1"/>
-            <field name="raw_product_length" optional="show"/>
-            <field name="raw_product_height" optional="show"/>
-            <field name="raw_product_uom_id" optional="hide"/>
-            <field name="raw_product_area" optional="show"/>
-            <field name="raw_product_usable_area" optional="hide"/>
-            <field name="raw_area_orientation" optional="hide"/>
-            <field name="product_qty" sum="1"/>
-            <field name="product_qty_available" sum="1" force_save="1"/>
-            <field name="product_qty_enter" sum="1"/>
-            <button name="action_see_attachments" type="object" icon="fa-files-o" aria-label="Product Attachments" title="Product Attachments" class="float-right oe_read_only"/>
-            <field name="attachments_count" class="text-left oe_read_only" string=" "/>
-          </tree>
-        </field>
-        <label for="notes" string="Notas específicas"/>
-        <field name="notes"/>
-      </xpath>
+      
     </field>
   </record>
 
