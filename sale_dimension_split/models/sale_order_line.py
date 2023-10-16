@@ -308,93 +308,95 @@ class SaleOrderLine(models.Model):
 
             # Cálculo de cuántas piezas se pueden sacar de cada componente
             # Init
-            pieces_from_hei = 0
-            pieces_from_len = 0
-            pieces_needed = 0
+            for bom_line in line.sale_line_bom_ids:
 
-            if line.product_pieces_length != 0:
-                pieces_from_len = line.sale_line_bom_ids.raw_product_length // line.product_pieces_length
-            if line.product_pieces_height != 0:
-                pieces_from_hei = line.sale_line_bom_ids.raw_product_height // line.product_pieces_height
-                
-            pieces_from_raw_material = pieces_from_len * pieces_from_hei
-            if pieces_from_raw_material != 0:
-                pieces_needed = math.ceil(line.product_number_of_pieces / pieces_from_raw_material)
+                pieces_from_hei = 0
+                pieces_from_len = 0
+                pieces_needed = 0
 
-            # Casos de uso:
-            # 1. Si la unidad de medida de la línea es m2 y la del componente es m2
-            # 2. Si la unidad de medida de la línea es m2 y la del componente es m
-            # 3. Si la unidad de medida de la línea es m y la del componente es m2
-            # 4. Si la unidad de medida de la línea es m y la del componente es m
-            # 5. Si la unidad de medida de la línea es ud y la del componente es m2
-            # 6. Si la unidad de medida de la línea es ud y la del componente es m
-            # 7. Si la unidad de medida de la línea es ud y la del componente es ud
+                if line.product_pieces_length != 0:
+                    pieces_from_len = bom_line.raw_product_length // line.product_pieces_length
+                if line.product_pieces_height != 0:
+                    pieces_from_hei = bom_line.raw_product_height // line.product_pieces_height
 
-            # 1. Si la unidad de medida de la línea es m2 y la del componente es m2
-            if (
-                line.product_uom
-                and line.product_uom.id == self.env.ref("sale_dimension_split.product_uom_area").id
-                and line.sale_line_bom_ids.product_id.uom_id.id
-                == self.env.ref("sale_dimension_split.product_uom_area").id
-            ):
-                line.sale_line_bom_ids.product_qty = pieces_needed * line.sale_line_bom_ids.raw_product_area
+                pieces_from_raw_material = pieces_from_len * pieces_from_hei
+                if pieces_from_raw_material != 0:
+                    pieces_needed = math.ceil(line.product_number_of_pieces / pieces_from_raw_material)
 
-            # 2. Si la unidad de medida de la línea es m2 y la del componente es m
-            if (
-                line.product_uom
-                and line.product_uom.id == self.env.ref("sale_dimension_split.product_uom_area").id
-                and line.sale_line_bom_ids.product_id.uom_id.id
-                == self.env.ref("uom.product_uom_meter").id
-            ):
-                line.sale_line_bom_ids.product_qty = (pieces_needed
-                                                      * line.sale_line_bom_ids.raw_product_length / 100)
+                # Casos de uso:
+                # 1. Si la unidad de medida de la línea es m2 y la del componente es m2
+                # 2. Si la unidad de medida de la línea es m2 y la del componente es m
+                # 3. Si la unidad de medida de la línea es m y la del componente es m2
+                # 4. Si la unidad de medida de la línea es m y la del componente es m
+                # 5. Si la unidad de medida de la línea es ud y la del componente es m2
+                # 6. Si la unidad de medida de la línea es ud y la del componente es m
+                # 7. Si la unidad de medida de la línea es ud y la del componente es ud
 
-            # 3. Si la unidad de medida de la línea es m y la del componente es m2
-            if (
-                line.product_uom
-                and line.product_uom.id == self.env.ref("uom.product_uom_meter").id
-                and line.sale_line_bom_ids.product_id.uom_id.id
-                == self.env.ref("sale_dimension_split.product_uom_area").id
-            ):
-                line.sale_line_bom_ids.product_qty = pieces_needed * line.sale_line_bom_ids.raw_product_area
+                # 1. Si la unidad de medida de la línea es m2 y la del componente es m2
+                if (
+                    line.product_uom
+                    and line.product_uom.id == self.env.ref("sale_dimension_split.product_uom_area").id
+                    and bom_line.product_id.uom_id.id
+                    == self.env.ref("sale_dimension_split.product_uom_area").id
+                ):
+                    bom_line.product_qty = pieces_needed * bom_line.raw_product_area
 
-            # 4. Si la unidad de medida de la línea es m y la del componente es m
-            if (
-                line.product_uom
-                and line.product_uom.id == self.env.ref("uom.product_uom_meter").id
-                and line.sale_line_bom_ids.product_id.uom_id.id
-                == self.env.ref("uom.product_uom_meter").id
-            ):
-                line.sale_line_bom_ids.product_qty = (pieces_needed
-                                                      * line.sale_line_bom_ids.raw_product_length / 100)
+                # 2. Si la unidad de medida de la línea es m2 y la del componente es m
+                if (
+                    line.product_uom
+                    and line.product_uom.id == self.env.ref("sale_dimension_split.product_uom_area").id
+                    and bom_line.product_id.uom_id.id
+                    == self.env.ref("uom.product_uom_meter").id
+                ):
+                    bom_line.product_qty = (pieces_needed
+                                                          * bom_line.raw_product_length / 100)
 
-            # 5. Si la unidad de medida de la línea es ud y la del componente es m2
-            if (
-                line.product_uom
-                and line.product_uom.id == self.env.ref("uom.product_uom_unit").id
-                and line.sale_line_bom_ids.product_id.uom_id.id
-                == self.env.ref("sale_dimension_split.product_uom_area").id
-            ):
-                line.sale_line_bom_ids.product_qty = pieces_needed * line.sale_line_bom_ids.raw_product_area
+                # 3. Si la unidad de medida de la línea es m y la del componente es m2
+                if (
+                    line.product_uom
+                    and line.product_uom.id == self.env.ref("uom.product_uom_meter").id
+                    and bom_line.product_id.uom_id.id
+                    == self.env.ref("sale_dimension_split.product_uom_area").id
+                ):
+                    bom_line.product_qty = pieces_needed * bom_line.raw_product_area
 
-            # 6. Si la unidad de medida de la línea es ud y la del componente es m
-            if (
-                line.product_uom
-                and line.product_uom.id == self.env.ref("uom.product_uom_unit").id
-                and line.sale_line_bom_ids.product_id.uom_id.id
-                == self.env.ref("uom.product_uom_meter").id
-            ):
-                line.sale_line_bom_ids.product_qty = (pieces_needed
-                                                      * line.sale_line_bom_ids.raw_product_length / 100)
+                # 4. Si la unidad de medida de la línea es m y la del componente es m
+                if (
+                    line.product_uom
+                    and line.product_uom.id == self.env.ref("uom.product_uom_meter").id
+                    and bom_line.product_id.uom_id.id
+                    == self.env.ref("uom.product_uom_meter").id
+                ):
+                    bom_line.product_qty = (pieces_needed
+                                                          * bom_line.raw_product_length / 100)
 
-            # 7. Si la unidad de medida de la línea es ud y la del componente es ud
-            if (
-                line.product_uom
-                and line.product_uom.id == self.env.ref("uom.product_uom_unit").id
-                and line.sale_line_bom_ids.product_id.uom_id.id
-                == self.env.ref("uom.product_uom_unit").id
-            ):
-                line.sale_line_bom_ids.product_qty = pieces_needed
+                # 5. Si la unidad de medida de la línea es ud y la del componente es m2
+                if (
+                    line.product_uom
+                    and line.product_uom.id == self.env.ref("uom.product_uom_unit").id
+                    and bom_line.product_id.uom_id.id
+                    == self.env.ref("sale_dimension_split.product_uom_area").id
+                ):
+                    bom_line.product_qty = pieces_needed * bom_line.raw_product_area
+
+                # 6. Si la unidad de medida de la línea es ud y la del componente es m
+                if (
+                    line.product_uom
+                    and line.product_uom.id == self.env.ref("uom.product_uom_unit").id
+                    and bom_line.product_id.uom_id.id
+                    == self.env.ref("uom.product_uom_meter").id
+                ):
+                    bom_line.product_qty = (pieces_needed
+                                                          * bom_line.raw_product_length / 100)
+
+                # 7. Si la unidad de medida de la línea es ud y la del componente es ud
+                if (
+                    line.product_uom
+                    and line.product_uom.id == self.env.ref("uom.product_uom_unit").id
+                    and bom_line.product_id.uom_id.id
+                    == self.env.ref("uom.product_uom_unit").id
+                ):
+                    bom_line.product_qty = pieces_needed
 
     @api.onchange(
         "sale_line_bom_ids.product_id",
