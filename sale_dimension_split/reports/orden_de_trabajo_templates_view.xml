@@ -82,9 +82,8 @@
                                                 <th class="text-left">Componente</th>
                                                 <th class="text-left">Largo(cm)</th>
                                                 <th class="text-left">Alto(cm)</th>
-                                                <th class="text-left">Área</th>
-                                                <th class="text-left">Necesario</th>
-                                                <th class="text-left">Stock</th>
+                                                <th class="text-left">A Usar</th>
+                                                <th class="text-left">UdM</th>
                                             </tr>
                                         </thead>
                                         <tr t-foreach="line.sale_line_bom_ids" t-as="l_bom">
@@ -101,13 +100,10 @@
                                                 <span t-field="l_bom.raw_product_height"/>
                                             </td>
                                             <td>
-                                                <span t-field="l_bom.raw_product_area"/>
+                                                <span t-field="l_bom.product_qty_enter"/>
                                             </td>
                                             <td>
-                                                <span t-field="l_bom.product_qty"/>
-                                            </td>
-                                            <td>
-                                                <span t-field="l_bom.product_qty_available"/>
+                                                <span t-field="l_bom.product_id.uom_id"/>
                                             </td>
                                         </tr>
                                     </table>

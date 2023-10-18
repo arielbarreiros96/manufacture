@@ -252,6 +252,7 @@ class SaleOrderLine(models.Model):
     #                 line.sale_line_bom_ids.product_qty = line.sale_line_bom_ids.raw_product_length / c
 
     @api.onchange(
+        "product_id",
         "product_pieces_length",
         "product_pieces_height",
         "product_uom_qty",
@@ -298,11 +299,11 @@ class SaleOrderLine(models.Model):
                 if (
                     line.product_pieces_height != 0 and line.product_pieces_length != 0
                 ):
-                    line.product_area = (
-                        line.product_uom_qty * line.product_pieces_height / 100
-                    )
                     line.product_number_of_pieces = math.ceil(
-                        line.product_uom_qty / (line.product_pieces_length / 100)
+                        line.product_uom_qty / (max(line.product_pieces_length, line.product_pieces_height) / 100)
+                    )
+                    line.product_area = line.product_number_of_pieces * (
+                        line.product_pieces_length * line.product_pieces_height / 10000
                     )
 
 
@@ -310,17 +311,23 @@ class SaleOrderLine(models.Model):
             # Init
             for bom_line in line.sale_line_bom_ids:
 
-                pieces_from_hei = 0
-                pieces_from_len = 0
+                pieces_from_hei1 = 0
+                pieces_from_len1 = 0
+                pieces_from_hei2 = 0
+                pieces_from_len2 = 0
                 pieces_needed = 0
 
                 if line.product_pieces_length != 0:
-                    pieces_from_len = bom_line.raw_product_length // line.product_pieces_length
+                    pieces_from_len1 = bom_line.raw_product_length // line.product_pieces_length
+                    pieces_from_hei2 = bom_line.raw_product_height // line.product_pieces_length
                 if line.product_pieces_height != 0:
-                    pieces_from_hei = bom_line.raw_product_height // line.product_pieces_height
+                    pieces_from_hei1 = bom_line.raw_product_height // line.product_pieces_height
+                    pieces_from_len2 = bom_line.raw_product_length // line.product_pieces_height
 
-                pieces_from_raw_material = pieces_from_len * pieces_from_hei
-                if pieces_from_raw_material != 0:
+                pieces_from_raw_material1 = pieces_from_len1 * pieces_from_hei1
+                pieces_from_raw_material2 = pieces_from_len2 * pieces_from_hei2
+                if pieces_from_raw_material1 != 0 and pieces_from_raw_material2 != 0:
+                    pieces_from_raw_material = max(pieces_from_raw_material1, pieces_from_raw_material2)
                     pieces_needed = math.ceil(line.product_number_of_pieces / pieces_from_raw_material)
 
                 # Casos de uso:
@@ -359,6 +366,11 @@ class SaleOrderLine(models.Model):
                     == self.env.ref("sale_dimension_split.product_uom_area").id
                 ):
                     bom_line.product_qty = pieces_needed * bom_line.raw_product_area
+                    raise UserError(
+                        _(
+                            print("pieces_from_raw_material1 {} pieces_from_raw_material2 {} {}". format(pieces_from_raw_material1, pieces_from_raw_material2, "Daisy"))
+                        )
+                    )
 
                 # 4. Si la unidad de medida de la línea es m y la del componente es m
                 if (
