@@ -408,7 +408,7 @@ class SaleOrderLine(models.Model):
                     and bom_line.product_id.uom_id.id
                     == self.env.ref("uom.product_uom_unit").id
                 ):
-                    bom_line.product_qty = pieces_needed
+                    bom_line.product_qty = line.product_uom_qty
 
     @api.onchange(
         "sale_line_bom_ids.product_id",
@@ -470,8 +470,8 @@ class SaleOrderLine(models.Model):
                 else:
                     line.raw_product_usable_area = raw_product_usable_area_v
                     line.raw_area_orientation = "v"
-            line.raw_product_area = (
-                line.raw_product_length * line.raw_product_height / 10000
+            line.raw_product_area = round(
+                line.raw_product_length * line.raw_product_height / 10000 , 4
             )
 
             if self.product_area != 0 and line.raw_product_usable_area != 0:

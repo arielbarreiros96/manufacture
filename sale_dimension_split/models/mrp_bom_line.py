@@ -38,7 +38,7 @@ class MrpBomLine(models.Model):
     )
 
     raw_product_area = fields.Float(
-        "Product area", store=True, digits=dp.get_precision("Product Unit of Measure")
+        "Product area", store=True, digits=(16, 4)
     )
     raw_product_usable_area = fields.Float(
         "Product usable area",

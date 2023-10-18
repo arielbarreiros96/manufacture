@@ -76,7 +76,7 @@ class SaleOrderLineBom(models.Model):
     raw_product_area = fields.Float(
         _("Área de producto"),
         store=True,
-        digits=dp.get_precision("Product Unit of Measure"),
+        digits=(16, 4),
     )
     raw_product_usable_area = fields.Float(
         _("Área utilizable del producto"),
