@@ -41,7 +41,6 @@
                 <span t-field="move.product_pieces_height"/>
                 <span>X</span>
                 <span t-field="move.product_pieces_width"/>
-                <span t-field="move.product_id.dimensional_uom_id"/>
             </td>
             <td>
                 <span t-field="move.price_unit"/>
@@ -97,7 +96,6 @@
                 <span t-field="bo_line.product_id.product_height"/>
                 <span>X</span>
                 <span t-field="bo_line.product_id.product_width"/>
-                <span t-field="bo_line.product_id.dimensional_uom_id"/>
             </td>
             <td>
                 <span t-field="bo_line.price_unit"/>
