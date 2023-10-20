@@ -366,11 +366,6 @@ class SaleOrderLine(models.Model):
                     == self.env.ref("sale_dimension_split.product_uom_area").id
                 ):
                     bom_line.product_qty = pieces_needed * bom_line.raw_product_area
-                    raise UserError(
-                        _(
-                            print("pieces_from_raw_material1 {} pieces_from_raw_material2 {} {}". format(pieces_from_raw_material1, pieces_from_raw_material2, "Daisy"))
-                        )
-                    )
 
                 # 4. Si la unidad de medida de la línea es m y la del componente es m
                 if (
