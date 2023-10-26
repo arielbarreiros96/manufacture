@@ -251,6 +251,30 @@ class SaleOrderLine(models.Model):
     #             if c!=0:
     #                 line.sale_line_bom_ids.product_qty = line.sale_line_bom_ids.raw_product_length / c
 
+    # @api.onchange(
+    #     "sale_line_bom_ids.product_id",
+    # )
+    # def _computed_set_sizes_default(self):
+    #     for line in self:
+    #         #Try to set the length and height of the raw material to some default values
+    #         if not line.sale_line_bom_ids:
+    #             line.product_pieces_length = line.product_id.product_length
+    #             line.product_pieces_height = line.product_id.product_height
+    #             line.product_pieces_width = line.product_id.product_width
+    #         else:
+    #             line.product_pieces_length = line.sale_line_bom_ids[0].product_id.product_length
+    #             line.product_pieces_height = line.sale_line_bom_ids[0].product_id.product_height
+    #             line.product_pieces_width = line.sale_line_bom_ids[0].product_id.product_width
+    #
+    # @api.onchange(
+    #     "product_id",
+    # )
+    # def _rename_product_line(self):
+    #     for line in self:
+    #         # line.name = line.product_id.name
+    #         line.name = "PEPE"
+
+
     @api.onchange(
         "product_id",
         "product_pieces_length",
@@ -305,7 +329,6 @@ class SaleOrderLine(models.Model):
                     line.product_area = line.product_number_of_pieces * (
                         line.product_pieces_length * line.product_pieces_height / 10000
                     )
-
 
             # Cálculo de cuántas piezas se pueden sacar de cada componente
             # Init
