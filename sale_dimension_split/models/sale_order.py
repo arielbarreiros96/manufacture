@@ -47,7 +47,7 @@ class SaleOrder(models.Model):
                             "raw_product_area": data.raw_product_area,
                             "raw_product_usable_area": data.raw_product_usable_area,
                             "raw_area_orientation": data.raw_area_orientation,
-                            "product_qty": data.product_qty,
+                            "product_qty": data.product_qty_enter,
                         }
                         mrp_bom_line.create(pdt_value)
 
