@@ -326,8 +326,9 @@ class SaleOrderLine(models.Model):
 
                 pieces_from_raw_material1 = pieces_from_len1 * pieces_from_hei1
                 pieces_from_raw_material2 = pieces_from_len2 * pieces_from_hei2
-                if pieces_from_raw_material1 != 0 and pieces_from_raw_material2 != 0:
-                    pieces_from_raw_material = max(pieces_from_raw_material1, pieces_from_raw_material2)
+
+                pieces_from_raw_material = max(pieces_from_raw_material1, pieces_from_raw_material2)
+                if pieces_from_raw_material != 0:
                     pieces_needed = math.ceil(line.product_number_of_pieces / pieces_from_raw_material)
 
                 # Casos de uso:
