@@ -274,6 +274,39 @@ class SaleOrderLine(models.Model):
     #         # line.name = line.product_id.name
     #         line.name = "PEPE"
 
+    @api.onchange(
+        "product_id",
+        "product_pieces_length",
+        "product_pieces_height",
+        "product_uom_qty",
+        "blade_affects_lenght",
+        "blade_affects_height",
+        "sale_line_bom_ids",
+        "sale_line_bom_ids.product_id",
+    )
+    def _set_sizes_default(self):
+        for line in self:
+            #Try to set the length and height of the raw material to some default values
+            if not line.sale_line_bom_ids:
+                line.product_pieces_length = line.product_id.product_length
+                line.product_pieces_height = line.product_id.product_height
+                line.product_pieces_width = line.product_id.product_width
+            else:
+                if line.product_pieces_length == 0:
+                    line.product_pieces_length = line.sale_line_bom_ids[0].product_id.product_length
+                elif line.product_pieces_height == 0:
+                    line.product_pieces_height = line.sale_line_bom_ids[0].product_id.product_height
+                elif line.product_pieces_width == 0:
+                    line.product_pieces_width = line.sale_line_bom_ids[0].product_id.product_width
+
+    # @api.onchange(
+    #     "product_id",
+    # )
+    # def _rename_product_line(self):
+    #     for line in self:
+    #         # line.name = line.product_id.name
+    #         # line.product_id.description_sale = "PEPE"
+
 
     @api.onchange(
         "product_id",
