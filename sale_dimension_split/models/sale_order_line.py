@@ -294,9 +294,9 @@ class SaleOrderLine(models.Model):
             else:
                 if line.product_pieces_length == 0:
                     line.product_pieces_length = line.sale_line_bom_ids[0].product_id.product_length
-                elif line.product_pieces_height == 0:
+                if line.product_pieces_height == 0:
                     line.product_pieces_height = line.sale_line_bom_ids[0].product_id.product_height
-                elif line.product_pieces_width == 0:
+                if line.product_pieces_width == 0:
                     line.product_pieces_width = line.sale_line_bom_ids[0].product_id.product_width
 
     # @api.onchange(
