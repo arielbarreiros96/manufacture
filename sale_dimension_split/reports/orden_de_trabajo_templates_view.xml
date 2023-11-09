@@ -22,13 +22,18 @@
                             <t t-if="doc.partner_shipping_id != doc.partner_invoice_id">
                                 <strong>Datos de la obra:</strong>
                                 <div t-field="doc.partner_shipping_id"
-                                    t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
+                                    t-options='{"widget": "contact", "fields": ["name"], "no_marker": True}'/>
                             </t>
                         </t>
                     </t>
                     <div class="page">
                         <div class="oe_structure"/>
-                        
+
+                        <h2 class="mt16">
+                            <span>Orden de Trabajo </span>
+                            <span t-field="doc.name"/>
+                        </h2>
+
                         <div class="row mt32 mb32" id="informations">
                             <div t-if="doc.client_order_ref" class="col-auto col-3 mw-100 mb-2">
                                 <strong>Plazo de entrega:</strong>
