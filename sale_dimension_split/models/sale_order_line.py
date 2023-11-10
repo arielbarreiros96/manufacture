@@ -288,9 +288,12 @@ class SaleOrderLine(models.Model):
         for line in self:
             #Try to set the length and height of the raw material to some default values
             if not line.sale_line_bom_ids:
-                line.product_pieces_length = line.product_id.product_length
-                line.product_pieces_height = line.product_id.product_height
-                line.product_pieces_width = line.product_id.product_width
+                if line.product_pieces_length == 0:
+                    line.product_pieces_length = line.product_id.product_length
+                if line.product_pieces_height == 0:
+                    line.product_pieces_height = line.product_id.product_height
+                if line.product_pieces_width == 0:
+                    line.product_pieces_width = line.product_id.product_width
             else:
                 if line.product_pieces_length == 0:
                     line.product_pieces_length = line.sale_line_bom_ids[0].product_id.product_length
