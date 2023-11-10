@@ -78,3 +78,38 @@ class StockMoveLine(models.Model):
         related="move_id.price_unit",
         
     )
+
+    def _get_aggregated_product_quantities(self, **kwargs):
+        aggregated_move_lines = super(
+            StockMoveLine, self
+        )._get_aggregated_product_quantities(**kwargs)
+        for move_line in self:
+            name = move_line.product_id.display_name
+            description = move_line.move_id.description_picking
+            if description == name or description == move_line.product_id.name:
+                description = False
+            uom = move_line.product_uom_id
+            line_key = (
+                str(move_line.product_id.id)
+                + "_"
+                + name
+                + (description or "")
+                + "uom "
+                + str(uom.id)
+            )
+            if line_key in aggregated_move_lines:
+                aggregated_move_lines[line_key][
+                    "product_pieces_length"
+                ] = move_line.product_pieces_length
+                aggregated_move_lines[line_key][
+                    "product_pieces_height"
+                ] = move_line.product_pieces_height
+                aggregated_move_lines[line_key][
+                    "product_pieces_width"
+                ] = move_line.product_pieces_width
+                aggregated_move_lines[line_key][
+                    "product_number_of_pieces"
+                ] = move_line.product_number_of_pieces
+                aggregated_move_lines[line_key]["price_unit"] = move_line.price_unit
+
+        return aggregated_move_lines
