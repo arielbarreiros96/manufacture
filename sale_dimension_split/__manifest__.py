@@ -26,7 +26,8 @@
         "reports/orden_de_trabajo_templates_view.xml",
         "reports/report_saleorder_document.xml",
         "reports/external_layout_background.xml",
-        "reports/report_delivery_document.xml"
+        "reports/report_delivery_document.xml",
+        "reports/report_invoice_document.xml"
     ],
     "demo": [],
     "development_status": "Mature",
