@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Extend the QC Test Question form view -->
+    <record id="qc_test_question_form_view_formula" model="ir.ui.view">
+        <field name="name">qc.test.question.form.formula</field>
+        <field name="model">qc.test.question</field>
+        <field name="inherit_id" ref="quality_control_oca.qc_test_question_form_view" />
+        <field name="arch" type="xml">
+            <field name="type" position="after">
+                <field
+                    name="formula_code"
+                    widget="text"
+                    string="Formula (Python)"
+                    placeholder="value &gt;= 5 and value &lt;= 10"
+                    invisible="type != 'formula'"
+                    required="type == 'formula'"
+                />
+            </field>
+        </field>
+    </record>
+
+    <!-- Extend the QC Test form view -->
+    <record id="qc_test_form_view_formula" model="ir.ui.view">
+        <field name="name">qc.test.form.formula</field>
+        <field name="model">qc.test</field>
+        <field name="inherit_id" ref="quality_control_oca.qc_test_form_view" />
+        <field name="arch" type="xml">
+            <xpath
+                expr="//field[@name='test_lines']//tree//field[@name='type']"
+                position="after"
+            >
+                <field
+                    name="formula_code"
+                    string="Formula"
+                    column_invisible="type != 'formula'"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>
