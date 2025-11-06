@@ -13,12 +13,29 @@
                         name="formula_code"
                         widget="ace"
                         options="{'mode': 'python'}"
-                        string="Formula (Python)"
+                        string="Formula"
                         placeholder="value &gt;= 5 and value &lt;= 10"
                         required="type == 'formula'"
                         colspan="4"
                     />
                 </group>
+            </field>
+        </field>
+    </record>
+    <record id="qc_inspection_form_view_formula_fields" model="ir.ui.view">
+        <field name="name">qc.inspection.form.formula.fields</field>
+        <field name="model">qc.inspection</field>
+        <field name="inherit_id" ref="quality_control_oca.qc_inspection_form_view" />
+        <field name="arch" type="xml">
+            <field name="qualitative_value" position="attributes">
+                <attribute
+                    name="readonly"
+                >question_type in ('quantitative','formula')</attribute>
+            </field>
+            <field name="quantitative_value" position="attributes">
+                <attribute
+                    name="readonly"
+                >question_type in ('qualitative','formula')</attribute>
             </field>
         </field>
     </record>

@@ -48,6 +48,8 @@ class QcInspectionLine(models.Model):
         "inspection_id.write_date",
     )
     def _compute_quality_test_check(self):
+        if not all(line.inspection_id.state == "ready" for line in self):
+            return
         formula_lines = self.filtered(lambda line: line.question_type == "formula")
         other_lines = self - formula_lines
         if other_lines:

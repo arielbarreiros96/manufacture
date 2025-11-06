@@ -1,7 +1,21 @@
 """Extension of quality control test questions to support formula validation."""
 
 from odoo import _, api, exceptions, fields, models
-from odoo.tools.safe_eval import safe_eval
+from odoo.tools.safe_eval import (
+    datetime as safe_datetime,
+)
+from odoo.tools.safe_eval import (
+    dateutil as safe_dateutil,
+)
+from odoo.tools.safe_eval import (
+    pytz as safe_pytz,
+)
+from odoo.tools.safe_eval import (
+    safe_eval,
+)
+from odoo.tools.safe_eval import (
+    time as safe_time,
+)
 
 FORMULA_TEMPLATE = (
     "# Write Python code that assigns True or False to the variable `result`.\n"
@@ -10,6 +24,11 @@ FORMULA_TEMPLATE = (
     "#   inspection -> inspection record (qc.inspection).\n"
     "#   test -> quality test (qc.test).\n"
     "#   question -> test line definition (qc.test.line).\n"
+    "#   env -> Odoo environment.\n"
+    "#   datetime -> Safe wrapper around the datetime module.\n"
+    "#   time -> Safe wrapper around selected functions of time module.\n"
+    "#   dateutil -> Safe wrapper around python-dateutil helpers.\n"
+    "#   timezone -> Safe pytz.timezone helper.\n"
     "# You must set `result` to a boolean value.\n"
     "# Example:\n"
     "# result = inspection.qty > 0\n"
@@ -34,10 +53,11 @@ class QcTestQuestion(models.Model):
         ondelete={"formula": "cascade"},
     )
     formula_code = fields.Text(
-        string="Formula (Python)",
+        string="Formula",
         help=(
             "Python code that sets a boolean in the variable `result`. Available "
-            "variables: line (inspection line), inspection, test, question."
+            "variables: line (inspection line), inspection, test, question, env, "
+            "datetime, time, dateutil, timezone."
         ),
         default=FORMULA_TEMPLATE,
     )
@@ -71,6 +91,11 @@ class QcTestQuestion(models.Model):
             "inspection": inspection_line.inspection_id,
             "test": inspection_line.test_line.test,
             "question": inspection_line.test_line,
+            "env": self.env,
+            "datetime": safe_datetime,
+            "time": safe_time,
+            "dateutil": safe_dateutil,
+            "timezone": safe_pytz.timezone,
             "result": False,
         }
 
