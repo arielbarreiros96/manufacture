@@ -8,19 +8,23 @@
 
     <!-- Formula question: Check if value is between 5 and 15 -->
     <record model="qc.test.question" id="qc_test_question_formula_1">
-        <field name="name">Value in range</field>
+        <field name="name">Inspection Qty. in range</field>
         <field name="test" ref="qc_test_formula_demo" />
         <field name="type">formula</field>
-        <field name="formula_code">value &gt;= 5 and value &lt;= 15</field>
+        <field name="formula_code">
+result = 5 &lt;= inspection.qty &lt;= 15
+        </field>
         <field name="sequence">10</field>
     </record>
 
     <!-- Formula question: even number -->
     <record model="qc.test.question" id="qc_test_question_formula_2">
-        <field name="name">Even value</field>
+        <field name="name">Inspection Qty. is even</field>
         <field name="test" ref="qc_test_formula_demo" />
         <field name="type">formula</field>
-        <field name="formula_code">line.quantitative_value % 2 == 0</field>
+        <field name="formula_code">
+result = (inspection.qty or 0) % 2 == 0
+        </field>
         <field name="sequence">20</field>
     </record>
 

@@ -3,6 +3,28 @@
 from odoo import _, api, exceptions, fields, models
 from odoo.tools.safe_eval import safe_eval
 
+FORMULA_TEMPLATE = (
+    "# Write Python code that assigns True or False to the variable `result`.\n"
+    "# Available variables:\n"
+    "#   line -> quality inspection line (qc.inspection.line).\n"
+    "#   inspection -> inspection record (qc.inspection).\n"
+    "#   test -> quality test (qc.test).\n"
+    "#   question -> test line definition (qc.test.line).\n"
+    "# You must set `result` to a boolean value.\n"
+    "# Example:\n"
+    "# result = inspection.qty > 0\n"
+    "result = True\n"
+)
+
+
+def _contains_expression(code):
+    """Return True when the string contains any non-comment expression."""
+    for line in (code or "").splitlines():
+        stripped = line.strip()
+        if stripped and not stripped.startswith("#"):
+            return True
+    return False
+
 
 class QcTestQuestion(models.Model):
     _inherit = "qc.test.question"
@@ -14,10 +36,10 @@ class QcTestQuestion(models.Model):
     formula_code = fields.Text(
         string="Formula (Python)",
         help=(
-            "Python expression returning True or False. Available variables: "
-            "value (inspection value), line (inspection line), inspection, test, "
-            "question."
+            "Python code that sets a boolean in the variable `result`. Available "
+            "variables: line (inspection line), inspection, test, question."
         ),
+        default=FORMULA_TEMPLATE,
     )
 
     @api.constrains("formula_code", "type")
@@ -26,21 +48,30 @@ class QcTestQuestion(models.Model):
         for question in self:
             if question.type != "formula" or not question.formula_code:
                 continue
+            if not _contains_expression(question.formula_code):
+                continue
             try:
-                compile(question.formula_code, "<formula>", "eval")
+                compile(question.formula_code, "<formula>", "exec")
             except SyntaxError as error:
                 raise exceptions.ValidationError(
                     _("Invalid formula for '%s': %s") % (question.display_name, error)
                 ) from error
 
+    @api.onchange("type")
+    def _onchange_type_set_formula_template(self):
+        """Pre-fill template instructions when switching to formula type."""
+        for question in self:
+            if question.type == "formula" and not question.formula_code:
+                question.formula_code = FORMULA_TEMPLATE
+
     def _formula_eval_context(self, inspection_line):
         """Build the evaluation context for a formula question."""
         return {
-            "value": inspection_line.quantitative_value or 0.0,
             "line": inspection_line,
             "inspection": inspection_line.inspection_id,
             "test": inspection_line.test_line.test,
             "question": inspection_line.test_line,
+            "result": False,
         }
 
     def _evaluate_formula(self, inspection_line):
@@ -48,20 +79,30 @@ class QcTestQuestion(models.Model):
         self.ensure_one()
         if self.type != "formula" or not self.formula_code:
             return True
+        if not _contains_expression(self.formula_code):
+            return True
+        context = self._formula_eval_context(inspection_line)
         try:
-            result = safe_eval(
+            safe_eval(
                 self.formula_code,
-                self._formula_eval_context(inspection_line),
+                context,
+                mode="exec",
                 nocopy=True,
             )
-        except Exception as error:  # pragma: no cover - rethrown for clarity
+        except Exception as error:
             raise exceptions.UserError(
                 _("Error while evaluating formula for '%s': %s")
                 % (self.display_name, error)
             ) from error
-        if not isinstance(result, bool):
+        result_value = context.get("result")
+        if result_value is None:
             raise exceptions.UserError(
-                _("Formula for '%s' must return True or False, got %s.")
-                % (self.display_name, type(result).__name__)
+                _("Formula for '%s' must assign a boolean to the variable `result`.")
+                % self.display_name
             )
-        return result
+        if not isinstance(result_value, bool):
+            raise exceptions.UserError(
+                _("Formula for '%s' must set `result` to True or False, got %s.")
+                % (self.display_name, type(result_value).__name__)
+            )
+        return result_value
